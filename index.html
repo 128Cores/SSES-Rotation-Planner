@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SSES Rotation Planner</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="eyebrow">A–G rotation planner</div>
+        <h1>SSES Rotation Planner</h1>
+      </div>
+    </header>
+    <main>
+      <div class="toolbar">
+        <div class="row">
+          <button id="prev" aria-label="Previous date">←</button
+          ><input id="date" type="date" aria-label="Schedule date" /><button
+            id="next"
+            aria-label="Next date"
+          >
+            →</button
+          ><button id="today">Today</button>
+        </div>
+        <div>
+          <div class="row">
+            <button id="rotationPrevious" aria-pressed="false">← Previous</button>
+            <div class="days" id="days"></div>
+            <button id="rotationNext" class="active" aria-pressed="true">Next →</button>
+          </div>
+          <small id="rotationHint">Next selected: choose a letter to jump to its next date.</small>
+        </div>
+      </div>
+      <div class="layout">
+        <section>
+          <div class="card">
+            <div class="row between">
+              <div>
+                <div id="dateLabel" class="schedule-date"></div>
+                <h2 id="heading" class="heading-gap"></h2>
+              </div>
+              <div>
+                <label for="filter">Find a class</label
+                ><select id="filter"></select>
+              </div>
+            </div>
+            <p class="muted" id="calculation"></p>
+            <div class="row">
+              <label for="overrideLetter" class="inline-label">Correct this date:</label
+              ><select id="overrideLetter" aria-label="Correct rotation"></select
+              ><button id="override">Save rotation</button
+              ><button id="clearOverride">Use calculated rotation</button
+              ><button id="off">Mark day off</button>
+            </div>
+            <div id="schedule"></div>
+            <div id="dailyRoutines"></div>
+          </div>
+          <details class="card">
+            <summary>Full A–G grid</summary>
+            <div class="scroll"><table id="grid"></table></div>
+          </details>
+          <details class="card">
+            <summary>Rotation & bell times</summary>
+            <p class="muted">
+              Calculated rotation skips weekends and your marked days off. School holidays are not
+              supplied: mark them here. Saved date overrides do not change the reference day.
+            </p>
+            <div class="formgrid">
+              <div>
+                <label for="anchorDate">Reference date</label><input type="date" id="anchorDate" />
+              </div>
+              <div>
+                <label for="anchorDay">Reference rotation</label
+                ><select id="anchorDay"></select>
+              </div>
+            </div>
+            <button id="saveAnchor" class="spaced-button">Save reference</button>
+            <p id="offList" class="muted"></p>
+            <p class="muted">
+              Block times and segments come from your configuration. You can edit block times below.
+            </p>
+            <div id="bells"></div>
+            <button id="saveBells">Save bell times</button>
+          </details>
+        </section>
+        <aside>
+          <div class="card">
+            <h2 id="formHeading">Add an appointment</h2>
+            <form id="appointmentForm">
+              <input type="hidden" id="editId" /><label for="entryKind">Type</label
+              ><select id="entryKind">
+                <option value="appointment">Appointment</option>
+                <option value="task">Task</option>
+              </select>
+              <div class="formgrid">
+                <div class="full">
+                  <label for="title">What’s happening?</label
+                  ><input
+                    id="title"
+                    required
+                    maxlength="150"
+                    placeholder="Meeting, study session…"
+                  />
+                </div>
+                <div>
+                  <label for="appointmentDate">Date</label
+                  ><input id="appointmentDate" type="date" required />
+                </div>
+                <div>
+                  <label for="period">Link to a block</label
+                  ><select id="period"></select>
+                </div>
+                <div>
+                  <label for="start">Start (optional)</label><input id="start" type="time" />
+                </div>
+                <div><label for="end">End (optional)</label><input id="end" type="time" /></div>
+                <div class="full">
+                  <label for="notes">Place / notes</label
+                  ><input id="notes" maxlength="300" placeholder="Room or reminder" />
+                </div>
+                <div class="full">
+                  <label id="notifyLabel"
+                    ><input type="checkbox" id="notifyAppointment" class="auto-width" disabled />
+                    Notify</label
+                  ><label for="reminderMinutes">Remind me before the start</label
+                  ><select id="reminderMinutes" disabled>
+                    <option value="0">At start time</option>
+                    <option value="5">5 minutes before</option>
+                    <option value="10" selected>10 minutes before</option>
+                    <option value="15">15 minutes before</option>
+                    <option value="30">30 minutes before</option>
+                    <option value="60">1 hour before</option>
+                    <option value="1440">1 day before</option>
+                  </select>
+                  <p class="muted" id="notifyReason">Set a start time to enable notifications.</p>
+                </div>
+                <div class="full">
+                  <button class="primary" type="submit" id="saveAppointment">
+                    Save appointment
+                  </button>
+                  <button type="button" id="cancelEdit" hidden>Cancel edit</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <h2 id="appointmentsHeading">Appointments</h2>
+            <div id="appointments"></div>
+            <h3>Activities for this date</h3>
+            <div id="activitiesToday"></div>
+          </div>
+          <div class="card">
+            <h2>Activities</h2>
+            <div id="activities"></div>
+          </div>
+          <div class="card">
+            <h2>All appointments</h2>
+            <div id="allAppointments"></div>
+            <button id="enableNotifications">Enable browser notifications</button>
+            <p class="muted" id="notificationStatus"></p>
+            <p class="muted">
+              Keep this planner open for reminders. Closed tabs cannot send them; sleeping devices
+              or suspended tabs can delay them. Times use this device’s local timezone.
+            </p>
+            <div id="reminderAlerts" role="log" aria-live="polite"></div>
+          </div>
+          <div class="card">
+            <h2>Planner configuration</h2>
+            <p class="muted">
+              The default template has no classes or activities. Its reference dates are examples.
+              Import your own schedule and school calendar to get started.
+            </p>
+            <p class="muted">
+              Choose a JSON file to immediately update your blocks, classes, A–G grid, activities,
+              and reference dates. You can undo the last import. A and G references are required.
+              Appointments stay saved; date overrides and days off are replaced by the imported
+              calendar.
+            </p>
+            <div class="row">
+              <button id="chooseConfiguration">Import</button
+              ><button id="exportConfiguration">Export</button
+              ><button id="downloadTemplate">Download template</button
+              ><input type="file" id="configurationFile" accept=".json,application/json" hidden />
+            </div>
+            <p id="configurationResult" role="status" class="muted" hidden></p>
+            <p id="configurationError" role="alert" class="warning"></p>
+            <div id="configurationPreview" hidden>
+              <h3>Review import</h3>
+              <p id="configurationSummary" class="muted"></p>
+              <p class="muted">A recovery backup will be saved in this browser before import.</p>
+              <div class="row">
+                <button id="applyConfiguration" class="primary">Apply configuration</button
+                ><button id="cancelConfiguration">Cancel</button>
+              </div>
+            </div>
+            <button id="undoConfiguration" hidden>Undo last configuration import</button>
+          </div>
+          <div class="card">
+            <h2>Planner data</h2>
+            <p class="muted">
+              Includes your appointments, configuration, and saved settings. Export all data to keep
+              a recovery copy or move to another device. Restoring all data replaces the saved
+              planner. Data stays in this browser; clearing browser data removes it.
+            </p>
+            <div class="row">
+              <button id="export">Export</button><button id="importButton">Restore</button
+              ><button id="resetData" class="danger">Reset</button
+              ><input hidden type="file" accept="application/json,.json" id="import" />
+            </div>
+          </div>
+        </aside>
+      </div>
+      <div id="status" role="status"></div>
+    </main>
+    <footer id="credits">Created by MemoryLaine · Version 1.0.0</footer>
+    <script src="./app.js"></script>
+  </body>
+</html>
+
