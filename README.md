@@ -81,3 +81,9 @@ No installation, API key, or build step is required.
 Created by **MemoryLaine**.
 
 **Version 1.0.0**
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+You may use, modify, and distribute the project as long as the original copyright and license notice are included.
